@@ -16,8 +16,8 @@ app.get("/", (req, res) => {
   res.send("Hello from the backend!");
 });
 
-app.get("/quotes", (req, res) => {
-  const { count = 1, character } = req.query; // destructuring with default value
+app.get("/quotes/:count/:character", (req, res) => {
+  const { count = 1, character } = req.params; // destructuring with default value
 
   let countAsNumber = Number(count);
 
