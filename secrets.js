@@ -1,3 +1,3 @@
 const salt = "somesecretsalt";
 
-module.exports = salt;
+module.exports = { salt };

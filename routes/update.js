@@ -6,54 +6,6 @@ const salt = require("../secrets");
 
 const { getUser, getUserById } = require("../utils");
 
-// no need to add users here
-router.post("/", (req, res) => {
-  const { users, body, lastUserId } = req;
-  let { email, password } = body;
-
-  if (!email || !password) {
-    res.send({ status: 0, reason: "Missing email or password" });
-  }
-
-  password = sha256(password + salt);
-
-  const user = req.users.find(
-    (user) => user.email === email && user.password === password
-  );
-
-  if (user) {
-    res.send({ status: 0, reason: "Duplicate account" });
-    return;
-  }
-
-  // add user
-  lastUserId.value++;
-  const _id = uuid.v4();
-  req.users.push({ email, password, _id });
-  res.send({ status: 1, _id });
-});
-
-router.get("/", (req, res) => {
-  res.send(req.users);
-});
-
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  const { users, body, lastUserId } = req;
-
-  if (!id) {
-    res.send({ status: 0, reason: "Missing id" });
-  }
-
-  const idx = getUserById(users, id);
-  if (idx === -1) {
-    res.send({ status: 0, reason: "User not found" });
-    return;
-  }
-
-  res.send(users[idx]);
-});
-
 router.patch("/:id", (req, res) => {
   const { id } = req.params;
   const { users, body, lastUserId } = req;
