@@ -6,33 +6,37 @@ const salt = require("../secrets");
 
 const { getUser, getUserById } = require("../utils");
 
-router.patch("/:id", (req, res) => {
-  const { id } = req.params;
-  const { users, body, lastUserId } = req;
-  const { email, password } = body;
+const { checkToken } = require("../middleware");
 
-  if (!id) {
-    res.send({ status: 0, reason: "Missing id" });
-  }
+router.patch("/:id", checkToken, (req, res) => {
+  // const { id } = req.params;
+  // const { users, body, lastUserId } = req;
+  const { email, password } = req.body;
+
+  // if (!id) {
+  //   res.send({ status: 0, reason: "Missing id" });
+  // }
 
   if (!(email || password)) {
     res.send({ status: 0, reason: "Missing email or password" });
   }
 
-  const idx = getUserById(users, id);
-  if (idx === -1) {
-    res.send({ status: 0, reason: "User not found" });
-    return;
-  }
+  // const idx = getUserById(users, id);
+  // if (idx === -1) {
+  //   res.send({ status: 0, reason: "User not found" });
+  //   return;
+  // }
 
   if (email) {
-    users[idx].email = email;
+    req.authedUser.email = email;
+    // users[idx].email = email;
   }
   if (password) {
-    users[idx].password = sha256(password + salt);
+    req.authedUser.password = sha256(password + salt);
+    // users[idx].password = sha256(password + salt);
   }
 
-  res.send({ status: 1, _id: id });
+  res.send({ status: 1, _id: req.authedUser._id });
 });
 
 router.patch("/append/:id", (req, res) => {

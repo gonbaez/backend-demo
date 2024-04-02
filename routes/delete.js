@@ -6,23 +6,28 @@ const salt = require("../secrets");
 
 const { getUser, getUserById } = require("../utils");
 
-router.delete("/:id", (req, res) => {
-  const { id } = req.params;
-  const { users, body, lastUserId } = req;
+const { checkToken } = require("../middleware");
 
-  if (!id) {
-    res.send({ status: 0, reason: "Missing id" });
-  }
+router.delete("/:id", checkToken, (req, res) => {
+  // const { id } = req.params;
+  // const { users, body, lastUserId } = req;
 
-  const idx = getUserById(users, id);
+  // if (!id) {
+  //   res.send({ status: 0, reason: "Missing id" });
+  // }
 
-  if (idx === -1) {
-    res.send({ status: 0, reason: "User not found" });
-    return;
-  }
+  // const idx = getUserById(users, id);
 
-  users.splice(idx, 1);
-  res.send({ status: 1, _id: id });
+  // if (idx === -1) {
+  //   res.send({ status: 0, reason: "User not found" });
+  //   return;
+  // }
+
+  const userIndex = req.users.findIndex(
+    (user) => user._id === req.authedUser._id
+  );
+  req.users.splice(userIndex, 1);
+  res.send({ status: 1, _id: req.authedUser._id });
 });
 
 module.exports = router;

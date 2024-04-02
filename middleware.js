@@ -19,4 +19,35 @@ function userAgent(req, res, next) {
   }
 }
 
-module.exports = { logging, userAgent };
+function checkIsUser(req, res, next) {
+  const user = req.users.find((user) => {
+    return req.body.email === user.email;
+  });
+
+  if (!user) {
+    res.send({ status: 0, reason: "User not found" });
+    return;
+  }
+
+  console.log("User found");
+  next();
+}
+
+function checkToken(req, res, next) {
+  const token = Number(req.headers.token);
+  if (!token) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  const user = req.users.find((user) => user.token.includes(token));
+  if (!user) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  req.authedUser = user;
+  next();
+}
+
+module.exports = { logging, userAgent, checkToken, checkIsUser };

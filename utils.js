@@ -8,4 +8,8 @@ function getUserById(users, id) {
   return users.findIndex((user) => user._id === id);
 }
 
-module.exports = { getUser, getUserById };
+function getRandom() {
+  return Math.floor(Math.random() * 10000000000);
+}
+
+module.exports = { getUser, getUserById, getRandom };

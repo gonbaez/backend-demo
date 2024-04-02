@@ -6,6 +6,8 @@ const salt = require("../secrets");
 
 const { getUser, getUserById } = require("../utils");
 
+const { checkIsUser, checkToken } = require("./middleware");
+
 // no need to add users here
 router.post("/", (req, res) => {
   const { users, body, lastUserId } = req;
