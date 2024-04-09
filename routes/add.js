@@ -3,7 +3,8 @@ const router = express.Router();
 const sha256 = require("sha256");
 const salt = require("../secrets");
 const asyncMySQL = require("../mySql/driver");
-const { addUser } = require("../mySql/queries");
+const { addUser, addToken } = require("../mySql/queries");
+const uuid = require("uuid");
 
 router.post("/", async (req, res) => {
   let { email, password } = req.body;
@@ -14,11 +15,15 @@ router.post("/", async (req, res) => {
 
   password = sha256(password + salt);
 
+  const token = uuid.v4();
+
   // Now lets use the DB
   try {
     const result = await asyncMySQL(addUser(email, password));
 
-    res.send({ status: 1 });
+    await asyncMySQL(addToken(result.insertId, token));
+
+    res.send({ status: 1, token });
   } catch (e) {
     console.log(e);
     res.send({ status: 0, reason: "Duplicate user" });

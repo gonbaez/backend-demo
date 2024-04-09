@@ -4,37 +4,20 @@ const sha256 = require("sha256");
 const uuid = require("uuid");
 const salt = require("../secrets");
 
-const { checkIsUser, checkToken } = require("../middleware");
+const { checkIsUser } = require("../middleware");
 
-const { getUser, getUserById } = require("../utils");
+const asyncMySQL = require("../mySql/driver");
+const { getUser } = require("../mySql/queries");
 
-router.get("/", (req, res) => {
-  res.send(req.users);
-});
+router.get("/:id", checkIsUser, async (req, res) => {
+  const results = await asyncMySQL(getUser(req.headers.token));
 
-// root middleware
-router.get("/demo", checkIsUser, (req, res) => {
-  res.send("you made it to the root");
-});
-
-router.get("/:id", checkToken, (req, res) => {
-  res.send({ status: 1, user: req.authedUser });
-  return;
-
-  const { id } = req.params;
-  const { users, body, lastUserId } = req;
-
-  if (!id) {
-    res.send({ status: 0, reason: "Missing id" });
-  }
-  console.log(users, id, getUserById(users, id));
-  const idx = getUserById(users, id);
-  if (idx === -1) {
-    res.send({ status: 0, reason: "User not found" });
+  if (results.length === 0) {
+    res.send({ status: 0, reason: "Invalid token" });
     return;
   }
 
-  res.send(users[idx]);
+  res.send({ status: 1, user: results[0] });
 });
 
 module.exports = router;

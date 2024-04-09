@@ -3,7 +3,6 @@ const router = express.Router();
 const sha256 = require("sha256");
 const uuid = require("uuid");
 const salt = require("../secrets");
-const { getRandom } = require("../utils");
 const asyncMySQL = require("../mySql/driver");
 const { addToken } = require("../mySql/queries");
 
@@ -23,9 +22,9 @@ router.post("/", async (req, res) => {
 
   const token = uuid.v4();
 
-  await asyncMySQL(addToken(token, result[0].id));
+  await asyncMySQL(addToken(result[0].id, token));
 
-  res.send({ status: 1, token: uuid.v4() });
+  res.send({ status: 1, token: token });
 });
 
 module.exports = router;

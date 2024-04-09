@@ -5,22 +5,8 @@ const app = express();
 const cors = require("cors");
 app.use(cors());
 
-// User state
-const users = [];
-let lastUserId = { value: 0 };
-
 // Body middleware
 app.use(express.json());
-
-// middleware to add data to request
-app.use(function (req, res, next) {
-  req.users = users;
-  req.lastUserId = lastUserId;
-  next();
-});
-
-// user route
-// app.use("/user", require("./routes/user"));
 
 app.use("/user/get", require("./routes/get"));
 app.use("/user/add", require("./routes/add"));
@@ -28,6 +14,7 @@ app.use("/user/update", require("./routes/update"));
 app.use("/user/delete", require("./routes/delete"));
 app.use("/user/login", require("./routes/login"));
 app.use("/user/logout", require("./routes/logout"));
+app.use("/proxy", require("./routes/proxy"));
 
 const PORT = process.env.PORT || 6001;
 app.listen(PORT, () => {
