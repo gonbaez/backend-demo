@@ -4,24 +4,28 @@ const sha256 = require("sha256");
 const uuid = require("uuid");
 const salt = require("../secrets");
 const { getRandom } = require("../utils");
+const asyncMySQL = require("../mySql/driver");
+const { addToken } = require("../mySql/queries");
 
-router.post("/", (req, res) => {
-  const user = req.users.find((user) => {
-    return (
-      user.email == req.body.email &&
-      user.password == sha256(req.body.password + salt)
-    );
-  });
+router.post("/", async (req, res) => {
+  let { email, password } = req.body;
 
-  if (!user) {
+  password = sha256(password + salt);
+
+  const result = await asyncMySQL(
+    `SELECT * FROM users WHERE email LIKE "${email}" AND password LIKE "${password}";`
+  );
+
+  if (result.length === 0) {
     res.send({ status: 0, reason: "Invalid email or password" });
     return;
   }
 
-  const token = getRandom();
-  user.token ? user.token.push(token) : (user.token = [token]);
+  const token = uuid.v4();
 
-  res.send({ status: 1, token: token });
+  await asyncMySQL(addToken(token, result[0].id));
+
+  res.send({ status: 1, token: uuid.v4() });
 });
 
 module.exports = router;

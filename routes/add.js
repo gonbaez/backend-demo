@@ -1,14 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const sha256 = require("sha256");
-const uuid = require("uuid");
 const salt = require("../secrets");
+const asyncMySQL = require("../mySql/driver");
+const { addUser } = require("../mySql/queries");
 
-const { getUser, getUserById } = require("../utils");
-
-router.post("/", (req, res) => {
-  const { users, body, lastUserId } = req;
-  let { email, password } = body;
+router.post("/", async (req, res) => {
+  let { email, password } = req.body;
 
   if (!email || !password) {
     res.send({ status: 0, reason: "Missing email or password" });
@@ -16,20 +14,15 @@ router.post("/", (req, res) => {
 
   password = sha256(password + salt);
 
-  const user = req.users.find(
-    (user) => user.email === email && user.password === password
-  );
+  // Now lets use the DB
+  try {
+    const result = await asyncMySQL(addUser(email, password));
 
-  if (user) {
-    res.send({ status: 0, reason: "Duplicate account" });
-    return;
+    res.send({ status: 1 });
+  } catch (e) {
+    console.log(e);
+    res.send({ status: 0, reason: "Duplicate user" });
   }
-
-  // add user
-  lastUserId.value++;
-  const _id = uuid.v4();
-  req.users.push({ email, password, _id });
-  res.send({ status: 1, _id });
 });
 
 module.exports = router;
