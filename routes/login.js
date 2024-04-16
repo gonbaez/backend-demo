@@ -22,6 +22,7 @@ router.post("/", async (req, res) => {
 
   const token = uuid.v4();
 
+  res.cookie("token", token);
   await asyncMySQL(addToken(result[0].id, token));
 
   res.send({ status: 1, token: token });

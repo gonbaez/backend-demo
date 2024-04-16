@@ -1,4 +1,5 @@
 const express = require("express");
+var cookieParser = require("cookie-parser");
 const app = express();
 
 // Only for when we get an error
@@ -7,6 +8,8 @@ app.use(cors());
 
 // Body middleware
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.use("/user/get", require("./routes/get"));
 app.use("/user/add", require("./routes/add"));
