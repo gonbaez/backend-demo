@@ -34,6 +34,7 @@ router.post("/", async (req, res) => {
   console.log(chalk.yellow("sha256 password:", sha256(password + salt)));
 
   //const sql = `SELECT * FROM users WHERE email LIKE "${email}" AND password LIKE "${password}";`;
+
   const sql = `SELECT * FROM users WHERE email LIKE ? AND password LIKE ?;`;
 
   const result = await asyncMySQL(sql, [email, password]);

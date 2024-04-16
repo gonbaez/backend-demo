@@ -14,6 +14,7 @@ router.get("/:id", checkIsUser, async (req, res) => {
   console.log(req.params.id);
 
   //const results = await asyncMySQL(getUser(req.headers.token));
+
   const results = await asyncMySQL(
     `SELECT * FROM users ORDER BY users.id ${req.params.id};`
   );
