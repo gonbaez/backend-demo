@@ -6,7 +6,19 @@ const asyncMySQL = require("../mySql/driver");
 const { addUser, addToken } = require("../mySql/queries");
 const uuid = require("uuid");
 
+const mongoose = require("mongoose");
+const { User } = require("../mongoose/models");
+const { userSchema } = require("../mongoose/schemas");
+
 router.post("/", async (req, res) => {
+  const connection = await mongoose.connect("mongodb://127.0.0.1:27017", {
+    useNewUrlParser: false,
+  });
+
+  mongoose.connection.on("error", (error) => {
+    console.log("MongoDB Connection Error", error);
+  });
+
   let { email, password } = req.body;
 
   if (!email || !password) {
@@ -19,9 +31,13 @@ router.post("/", async (req, res) => {
 
   // Now lets use the DB
   try {
-    const result = await asyncMySQL(addUser(email, password));
+    // const result = await asyncMySQL(addUser(email, password));
+    // await asyncMySQL(addToken(result.insertId, token));
 
-    await asyncMySQL(addToken(result.insertId, token));
+    const user = new User({ email, password, token });
+    const result = await user.save();
+
+    console.log(result);
 
     res.send({ status: 1, token });
   } catch (e) {
