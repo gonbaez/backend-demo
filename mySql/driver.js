@@ -10,9 +10,9 @@ const connection = mysql.createConnection({
 connection.connect();
 
 // wrap connection.query in a promise
-function asyncMySQL(query) {
+function asyncMySQL(query, params) {
   return new Promise((resolve, reject) => {
-    connection.query(query, function (error, results, fields) {
+    connection.query(query, params, function (error, results, fields) {
       if (error) {
         reject(error);
       } else {
